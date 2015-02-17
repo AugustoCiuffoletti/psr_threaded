@@ -1,26 +1,21 @@
 #!/usr/bin/python 
-import socket 
-import thread
-
-port = raw_input('Su quale porta apri il servizio?\n> ') 
-queuelen = 5 
-buflen = 80
-# Una funzione definisce il servizio
-def servizio(client):
-    data = client.recv(buflen) 
+import socket, thread
+def servizio(client):                                 #-- Funzione che incapsula il servizio
+    data = client.recv(buflen)                        # Attende il dato dal client
     if data: 
-        client.send(data)
+        client.send(data)                             # La rispedisce indietro
     print ('Stringa scambiata: '+data)
-    client.close()
-    print ('Servizio concluso')
-
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-s.bind(('',int(port))) 
-s.listen(queuelen)
+    client.close()                                    # Chiude il socket
+                                                      #-- Fine della funzione "servizio"
+port = raw_input('Su quale porta apri il servizio?\n> ') 
+( queuelen, buflen ) = ( 5, 80 ) 
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Creazione del socket
+s.bind(('',int(port)))                                # Collegamento della porta al socket
+s.listen(queuelen)                                    # Predisposizione della coda
 try:
     while 1:
-        (client, (remhost, remport))=s.accept()
+        (client, (remhost, remport))=s.accept()       # Attesa della richiesta (3-way handshake)
         print ('Servizio attivo con '+remhost)
-        thread.start_new_thread(servizio,(client,))
+        thread.start_new_thread(servizio,(client,))   # Invocazione di un thread di servizio
 except KeyboardInterrupt:
     print('\n*** Interruzione!')
